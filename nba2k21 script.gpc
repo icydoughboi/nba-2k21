@@ -1,0 +1,650 @@
+// GPC Online Library
+// _perfect_stick__shot_dribbles_v25.gpc
+
+/*
+If you're feeling generous you can donate to my account from the link below, please message me if you do!! All tips appreciated
+
+https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=7H3.M057.3L337%40gmail.com&item_name=Friendly+donations&currency_code=NZD
+
+
+
+
+
+NBA2k21 Shooting and Dribbles Script v2.5
+
+Update Log
+
+UPDATE for v2.5
+-Advanced Defense Mod causing problems with vibration. Have removed it so it doesn't cause problems with not getting the release vibrations.
+ Defense still works just won't vibrate.
+
+UPDATE for v2.4
+-You can now save the settings of the script by holding Share+Options (PS4) / Menu+View (XBOX)
+-Advanced Defense has been updated to work correctly this version. (Off by default, Options+R1  to activate)
+-Dribble moves are now done without holding R2, stops your stamina from dropping. (off by default, activate it Options(PS4) or Menu (XBOX) + L3)
+
+UPDATE for v2.3
+Advanced Defense Mod can be toggled by holding Options and pressing L2
+L1 is now default for stick shooting with or without meter. LED = OFF 
+
+To toggle button layout back to Hold R2 + L1 to shoot HOLD Options(PS4)/Menu(XBOX) and PRESS Square. LED = GREEN 
+
+UPDATE for v2.2
+-Fixed problem with rumble going off
+-Activate Defense mod by holding L2+R2 will vibrate while active
+-Added on the fly adjusting for delay
+-Added new dribble moves
+-Updated button layout slightly CHECK BUTTON LAYOUT BELOW
+
+
+UPDATE for v2.1
+-Added upgraded defense. L2 defense has received an upgrade to stop the sliding and stay in front of your man during iso plays.
+-Added half spin to the dribble sets for ankle breakers
+-Fixed crash from adjusting meter in game
+
+
+UPDATE for v2.0
+-Buttons mapped differently to allow L1 to be used for calling plays and square to reach for steals.
+-Meter can now be adjusted on the fly
+-Dribble moves are adjustable for sticks adding momentum and momentum behind the back
+
+
+==Button Layout============
+
+Shooting Center with Stick = HOLD R2(PS4) / RT(XBOX) and then HOLD L1(PS4) / LB(XBOX)
+
+Shooting with button = HOLD Square(PS4) / Cross(XBOX) and it will vibrate and release on it's own
+
+Adjust the Stick Meter = HOLD L1(PS4)/LB(XBOX) and PRESS D-PAD LEFT to move stick left and PRESS D-PAD RIGHT to move stick righ
+
+Adjust the delay for button shooting = HOLD Square(PS4) / Cross(XBOX) and PRESS D-PAD LEFT to move stick left and PRESS D-PAD RIGHT to move stick right
+
+Dribbles = PRESS L3 for left hand or PRESS R3 for right hand dribbles
+
+Alternate shooting with L1 or R2+L1 (LED OFF/ON) = HOLD Options(PS4)/Menu(XBOX) and PRESS Square. 
+
+LED Green = Aim shooting by holding R2+L1
+LED Off = Aim shooting by JUST HOLDING L1
+
+Toggle Dribble Mod off/on = HOLD Options(PS4)/Menu(XBOX) and PRESS L3. 
+
+Toggle Dribble Mod moves (Different dribble moves) = HOLD R3 and PRESS D-PAD LEFT or D-PAD RIGHT to change dribbles moves.
+
+Toggle Advanced Defense Mod = HOLD Options(PS4)/Menu(XBOX) and PRESS L2
+
+Advanced Defense = HOLD L2+R2(PS4) or HOLD LT+RT(XBOX) the controller will vibrate while in advanced defense.
+===========================
+
+
+==Current Dribble Move Sets Available============
+
+Toggle Dribble Mod moves (Different dribble moves) = HOLD R3 and PRESS D-PAD LEFT or D-PAD RIGHT to change dribbles moves.
+
+-Curry Slide
+-Explosive Behind The Back
+-Momentum
+-Momentum Behind The Back
+-Momentum Curry Slide
+-Half Spin
+-Glitched speed boost (Don't hold R2 for this one but when he starts running you can hold it. Left side of the court for L3 & Right side of the court for R3. Still adjusting)
+=================================================
+
+==Frequently asked questions=====================
+
+How can I get excellent instead of center?
+-HOLD Square to shoot
+
+Why am I getting slightly right or slightly left?
+-You can adjust the meter by reading the instructions above
+
+Why am I getting slightly late when I shoot with square/cross?
+-Because you're playing offline. You need latency to add the delay needed to time the shot.
+You can test it in mycourt but need a friend to join you to play 1v1 to test the jumpshot.
+If it's early or late use the instructions above to adjust it.Which jumpshot script is the best?
+Mine since I made it =] They are pretty much all coded the same as you need the same numbers to green.
+
+==================================================
+*/
+
+data( 1,                                                   //
+  2,0,0,0 , //1. Blue                                      //
+  0,2,0,0 , //2. Red                                       //
+  0,0,2,0 , //3. Green                                     // 
+  0,0,0,2 , //4. Pink                                      //
+  2,0,2,0 , //5. SkyBlue                                   //
+  0,2,2,0 , //6. Yellow                                    //
+  2,2,2,2   //7. White                                     //
+);                                                          //
+
+define MAX_RANGE = 330;
+int Meter,MeterPosition,delay,Dribbles,DribbleSet,ADVdefense,stepWait; 
+
+
+//=========================================================//
+//LED COLOURS//======Don't Touch===========================//
+//=========================================================//
+                                                           //
+define Green         =  3;                                 //
+int LED_OFF       = -2;                                    //
+                                                           //
+//=========================================================//          
+
+//=========================================================//
+//SAVE FEATURE//====Last value is default==================//
+//=========================================================//
+init 
+{
+     Meter = get_pvar(SPVAR_1,    0,1,0);
+     MeterPosition = get_pvar(SPVAR_2,    1,45,19);
+     delay = get_pvar(SPVAR_3,    1,100,21);
+     Dribbles = get_pvar(SPVAR_4,    0,1,0);
+     DribbleSet = get_pvar(SPVAR_5,    0,6,0);
+     ADVdefense = get_pvar(SPVAR_6,    0,1,0);
+}
+//=========================================================//
+
+
+main 
+{
+    set_val(TRACE_1,Meter);
+    set_val(TRACE_2,MeterPosition);
+    set_val(TRACE_3,delay);
+    set_val(TRACE_4,Dribbles);
+    set_val(TRACE_5,DribbleSet);
+    set_val(TRACE_6,ADVdefense);
+    
+    //SAVE SETTINGS
+      if(get_val(PS4_OPTIONS))
+    {
+        if(get_val(PS4_SHARE)) 
+        {
+            combo_run(Save);
+            combo_run(RUMBLE);
+        }
+    }
+    
+    if(get_rumble(RUMBLE_A) || get_rumble(RUMBLE_B)) 
+    {
+        combo_run(wait_time);
+    }
+    
+    if(Meter)  LED_CM(Green); //Green LED means Shoot aim with R2+L1     
+    else     LED_CM(LED_OFF); //No LED means Shoot aim with L1 
+    
+    if(ADVdefense == 1)
+    {
+        if(get_val(PS4_L2) && get_val(PS4_R2)) 
+        {
+            stepWait = MAX_RANGE - (FindMax(abs(get_val(XB1_LX)),abs(get_val(XB1_LY))) * 3);
+            combo_run(ALTERNATE_STEP);
+        }
+    }
+    
+      if(get_val(PS4_SQUARE))
+    {
+        if(event_press(PS4_LEFT)) 
+        {
+            delay--;
+            combo_run(RUMBLE);
+        }
+            
+        if(event_press(PS4_RIGHT)) 
+        {
+            delay++;
+            combo_run(RUMBLE);
+        }
+    }
+        
+    if(get_val(PS4_OPTIONS)) //Hold Options
+    {
+        if(event_press(PS4_SQUARE)) //If Options is held and (PS4)Square/(XBOX)X is pressed, toggle Meter/No Meter Script
+        {
+            Meter=!Meter; 
+            set_val(PS4_SQUARE, 0);
+            combo_run(RUMBLE);            
+        }
+        
+        if(event_press(PS4_L3)) //If Options is held and (L3 is pressed, toggle Dribble Script on/off
+        {
+            Dribbles=!Dribbles; 
+            set_val(PS4_L3, 0);
+            combo_run(RUMBLE);
+        }
+        
+         if(event_press(PS4_L2)) //If Options is held and (L3 is pressed, toggle Dribble Script on/off
+        {
+            ADVdefense=!ADVdefense; 
+            set_val(PS4_L2, 0);
+            combo_run(RUMBLE);
+        }
+        
+    }
+    
+    if(get_val(PS4_R3)) //Hold R3
+    {    
+        if(event_press(PS4_RIGHT)) //If R3 is held and (D-PAD Right is pressed, toggle Dribble sets
+        {
+            DribbleSet++;
+            if (DribbleSet >6)
+                DribbleSet = 0;
+                combo_run(RUMBLE);
+        }
+        
+        if(event_press(PS4_LEFT)) //If R3 is held and (D-PAD Left is pressed, toggle Dribble sets
+        {
+            DribbleSet--;
+            if (DribbleSet <0)
+                DribbleSet = 6;
+                combo_run(RUMBLE);
+        }
+    }
+       
+      if(get_val(PS4_L1))
+    {    
+        if(event_press(PS4_LEFT)) 
+        {
+            MeterPosition--;
+            combo_run(RUMBLE);
+        }    
+        
+        if(event_press(PS4_RIGHT)) 
+        {
+            MeterPosition++;
+            combo_run(RUMBLE);
+        }
+    }
+        
+    if (Meter == 1) //If "Meter" script is active, run commands below
+    {  
+        if(get_val(PS4_R2))
+        {    
+            if(get_val(PS4_L1)) 
+            {
+                set_val(PS4_RX, MeterPosition);
+                set_val(PS4_RY,100);
+            }
+        }
+    }
+    
+    if (Meter == 0) //If "No Meter" script is active, run commands below
+    {  
+        if(get_val(PS4_L1)) 
+        {
+            set_val(PS4_RX, MeterPosition);
+            set_val(PS4_RY,100);
+        }
+    }
+        
+    if(Dribbles == 1)
+    {
+        if (get_val(PS4_R2)) 
+        {
+            if (event_press(PS4_UP)) 
+            {
+                combo_run(Takeover);
+            }
+        }                
+    }    
+    //Dribble Set 0, Curry Slide
+    if(Dribbles == 1 && DribbleSet == 0)
+    {
+            if (event_press(PS4_L3)) 
+            {
+                combo_run(LHSLIDE);
+            }
+    
+            if (event_press(PS4_R3)) 
+            {
+                combo_run(RHSLIDE);
+            }
+    }
+        
+    //Dribble Set 1, Explosive behind the back
+    if(Dribbles == 1 && DribbleSet == 1)
+    {
+            if (event_press(PS4_L3)) 
+            {
+                combo_run(LHExplosiveBB);
+            }
+        
+            if (event_press(PS4_R3)) 
+            {
+                combo_run(RHExplosiveBB);
+            }
+    }
+        
+    //Dribble Set 2, Momentum
+    if(Dribbles == 1 && DribbleSet == 2)
+    {
+            if (event_press(PS4_L3)) 
+            {
+                combo_run(LHMomentum);
+            }
+        
+            if (event_press(PS4_R3)) 
+            {
+                combo_run(RHMomentum);
+            }
+    }
+        
+    //Dribble Set 3, Momentum behind the back
+    if(Dribbles == 1 && DribbleSet == 3)
+    {    
+            if (event_press(PS4_L3)) 
+            {
+                combo_run(LHMomentumBTB);
+            }
+        
+            if (event_press(PS4_R3)) 
+            {
+                combo_run(RHMomentumBTB);
+            }
+    }
+        
+    //Dribble Set 4, Momentum Curry Slide
+    if(Dribbles == 1 && DribbleSet == 4)
+    {    
+            if (event_press(PS4_L3)) 
+            {
+                combo_run(LHMomentumSLIDE);
+            }
+        
+            if (event_press(PS4_R3)) 
+            {
+                combo_run(RHMomentumSLIDE);
+            }
+    }
+        
+    //Dribble Set 5,Halfspin
+    if(Dribbles == 1 && DribbleSet == 5)
+    {    
+            if (event_press(PS4_L3)) 
+            {
+                combo_run(LHHS);
+            }
+        
+            if (event_press(PS4_R3)) 
+            {
+                combo_run(RHHS);
+            }
+    }
+        
+    //Dribble Set 6, Glitched Speed Boost
+    if(Dribbles == 1 && DribbleSet == 6)
+    {
+        if (event_press(PS4_L3)) 
+        {
+            set_val(PS4_R2,0);
+            combo_run(BoostLH);
+        }
+        
+        if (event_press(PS4_R3)) 
+        {
+            set_val(PS4_R2,0);
+            combo_run(BoostRH);
+        }
+    }
+}
+
+//=======================================
+// Dribble Moves //======================
+//=======================================
+
+//-Left hand half spin
+combo LHHS
+{ 
+    set_val(PS4_RX, -100);
+    wait(10);
+    
+    set_val(PS4_RX, -100);
+    set_val(PS4_RY, -30);
+    wait(10);
+    
+    set_val(PS4_RX, -20);
+    set_val(PS4_RY, -100);
+    wait(10);
+    
+    set_val(PS4_RY, -100);
+    wait(10);
+}
+
+//-Right hand half spin
+combo RHHS
+{ 
+    set_val(PS4_RX, 100);
+    wait(10);
+    
+    set_val(PS4_RX, 100);
+    set_val(PS4_RY, -30);
+    wait(10);
+    
+    set_val(PS4_RX, 20);
+    set_val(PS4_RY, -100);
+    wait(10);
+    
+    set_val(PS4_RY, -100);
+    wait(10);
+}
+
+//-Left hand Momentum
+combo LHMomentum
+{ 
+    set_val(PS4_RX, 100);
+    wait(40);
+    
+    set_val(PS4_LX, 75);
+    set_val(PS4_LY, -75);
+    wait(100);
+}
+
+//-Right hand Momentum
+combo RHMomentum
+{ 
+    set_val(PS4_RX, -100);
+    wait(40);
+    
+    set_val(PS4_LX, -75);
+    set_val(PS4_LY, -75);
+    wait(100);
+}
+
+//-Left hand Momentum Behind The Back
+combo LHMomentumBTB
+{ 
+    set_val(PS4_RX, 100);
+    wait(40);
+    
+    set_val(PS4_LX, 75);
+    set_val(PS4_LY, -75);
+    wait(300);
+    
+    call(RHExplosiveBB);
+}
+
+//-Right hand Momentum Behind The Back
+combo RHMomentumBTB
+{ 
+    set_val(PS4_RX, -100);
+    wait(40);
+    
+    set_val(PS4_LX, -75);
+    set_val(PS4_LY, -75);
+    wait(300);
+    
+    call(LHExplosiveBB);
+}
+
+//-Left hand Momentum Curry Slide
+combo LHMomentumSLIDE
+{ 
+    set_val(PS4_RX, 100);
+    wait(40);
+    
+    set_val(PS4_LX, 75);
+    set_val(PS4_LY, -75);
+    wait(300);
+    
+    call(RHSLIDE);
+}
+
+//-Right hand Momentum Curry Slide
+combo RHMomentumSLIDE
+{ 
+    set_val(PS4_RX, -100);
+    wait(40);
+    
+    set_val(PS4_LX, -75);
+    set_val(PS4_LY, -75);
+    wait(300);
+    
+    call(LHSLIDE);
+}
+
+//-Left hand curry slide
+combo LHSLIDE
+{ 
+    set_val(PS4_RX, 100);
+    set_val(PS4_RY, 50);
+    wait(400);
+}
+
+//-Right hand curry slide
+combo RHSLIDE
+{ 
+    set_val(PS4_RX, -100);
+    set_val(PS4_RY, 50);
+    wait(400);
+}
+
+//-Right hand explosive behind the back
+combo RHExplosiveBB
+{
+    set_val(PS4_RX, -75);
+    set_val(PS4_RY, 75);
+    wait(80);
+    set_val(PS4_LX, -75);
+    set_val(PS4_LY, -75);
+    wait(100);
+    set_val(PS4_LX, -75);
+    set_val(PS4_LY, -75);
+    wait(200);
+}
+
+//Left hand explosive behind the back
+combo LHExplosiveBB
+{
+    set_val(PS4_RX, 75);
+    set_val(PS4_RY, 75);
+    wait(80);
+   set_val(PS4_RX, 75);
+    set_val(PS4_RY, 75);
+    set_val(PS4_LX, 75);
+    set_val(PS4_LY, -75);
+    wait(100);
+    set_val(PS4_LX, 75);
+    set_val(PS4_LY, -70);
+    wait(200);
+}
+
+//Left hand Boost
+combo BoostLH
+{
+    set_val(PS4_RX, 100);
+    wait(60);
+    set_val(PS4_RX, 0);
+    wait(350);
+    set_val(PS4_LX, 100);
+    wait(60);
+    set_val(PS4_LX, 100);
+    set_val(PS4_R2, 100);    
+    wait(400);
+}
+
+//Right hand Boost
+combo BoostRH
+{
+    set_val(PS4_RX, -100);
+    wait(60);
+    set_val(PS4_RX, 0);
+    wait(350);
+    set_val(PS4_LX, -100);
+    wait(60);
+    set_val(PS4_LX, -100);
+    set_val(PS4_R2, 100);    
+    wait(400);
+}
+//=======================================
+
+
+
+
+//======================================
+// Defense Mod Combos //================
+//======================================
+
+combo ALTERNATE_STEP {
+    set_val(XB1_LT,100);
+    set_val(XB1_RT,0);
+    wait(30);
+    set_val(XB1_LT,0);
+    set_val(XB1_RT,0);
+    wait(stepWait);
+    set_val(XB1_RT,100);
+    set_val(XB1_LT,0);
+    wait(30);
+    set_val(XB1_LT,0);
+    set_val(XB1_RT,0);
+    wait(stepWait);
+}
+//======================================
+
+combo wait_time
+{
+    wait(delay);
+    set_val(PS4_L2, 100);
+    set_val(PS4_SQUARE, 0):
+    wait(100);
+    set_val(PS4_L2, 0);
+    wait(200):
+}
+
+combo Takeover
+{
+    set_val(PS4_R3, 100);
+    wait(100);
+    set_val(PS4_R3, 0);
+    wait(100):
+}
+
+combo RUMBLE
+{
+    set_rumble(RUMBLE_A, 100);
+    wait(200);
+    set_rumble(RUMBLE_A, 0);
+}
+
+
+combo Save
+{
+    set_pvar(SPVAR_1, Meter);
+    set_pvar(SPVAR_2, MeterPosition);
+    set_pvar(SPVAR_3, delay);
+    set_pvar(SPVAR_4, Dribbles);
+    set_pvar(SPVAR_5, DribbleSet);
+    set_pvar(SPVAR_6, ADVdefense);
+}
+
+function FindMax(a,b) {
+    if(a > b){
+        return a;
+    }
+    return b;
+}
+
+function LED_CM(Colour)                                    //
+{                                                          //
+    set_led(LED_1,dbyte(( Colour * 4)- 3     ));           //
+    set_led(LED_2,dbyte(((Colour * 4)- 3) + 1));           //
+    set_led(LED_3,dbyte(((Colour * 4)- 3) + 2));           //
+    set_led(LED_4,dbyte(((Colour * 4)- 3) + 3));           //
+}                                                          //
